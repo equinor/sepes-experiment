@@ -1,7 +1,7 @@
 # Sepes
 Data sandbox for solution validation with reduced exfiltration risk.
 
-Right now, this project is mostly in a pre-everything stage. So please look at the [wiki](https://github.com/Statoil/sepes/wiki) for information about the proposes solution that we want to build. 
+Right now, this project is mostly in a pre-everything stage. So please look at the [wiki](https://github.com/equinor/sepes/wiki) for information about the proposes solution that we want to build. 
 
 ## Contributing
 
