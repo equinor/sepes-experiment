@@ -1,0 +1,18 @@
+{
+  "Name": "Sepes User V3",
+  "IsCustom": true,
+  "Description": "Can manage Sepes Data Sandbox Pods.",
+  "Actions": [
+    "Microsoft.Network/*/read",
+    "Microsoft.Compute/*/read",
+    "Microsoft.Compute/virtualMachines/start/action",
+    "Microsoft.Compute/virtualMachines/restart/action",
+    "Microsoft.Resources/subscriptions/resourceGroups/read"
+  ],
+  "NotActions": [
+
+  ],
+  "AssignableScopes": [
+    "/subscriptions/9469cefb-83a9-4454-9610-eec23469c1fa"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "{roleDefinitionId}",
+  "properties": {
+    "roleName": "Sepes User",
+    "description": "Can manage Sepes Data Sandbox Pods.",
+    "type": "CustomRole",
+    "permissions": [
+      {
+        "actions": [
+          "Microsoft.Network/*/read",
+          "Microsoft.Compute/*/read",
+          "Microsoft.Compute/virtualMachines/start/action",
+          "Microsoft.Compute/virtualMachines/restart/action",
+          "Microsoft.Resources/subscriptions/resourceGroups/read"
+        ],
+        "notActions": [
+
+        ]
+      }
+    ],
+    "assignableScopes": [
+      "/subscriptions/9469cefb-83a9-4454-9610-eec23469c1fa"
+    ]
+  }
+}
