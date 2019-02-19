@@ -6,7 +6,7 @@
       "type": "string",
       "maxLength": 30,
       "metadata": {
-        "description": "Specify resource group name following agreed naming convention."
+        "description": "Specify study name."
       }
     },
     "location": {
@@ -32,34 +32,55 @@
       "type": "Microsoft.Resources/resourceGroups"
     },
     {
-      "apiVersion": "2018-07-01",
-      "comments": "Storage account for a study",
-      "kind": "StorageV2",
-      "location": "[parameters('location')]",
-      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2018-05-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/resourceGroups/', variables('resourceGroupName'))]"
+      ],
+      "name": "storageDeployment",
       "properties": {
-        "encryption": {
-          "keySource": "Microsoft.Storage",
-          "services": {
-            "blob": {
-              "enabled": true
-            },
-            "file": {
-              "enabled": true
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2018-07-01",
+              "comments": "Storage account for a study",
+              "name": "[variables('storageAccountName')]",
+              "location": "[parameters('location')]",
+              "kind": "StorageV2",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "properties": {
+                "encryption": {
+                  "keySource": "Microsoft.Storage",
+                  "services": {
+                    "blob": {
+                      "enabled": true
+                    },
+                    "file": {
+                      "enabled": true
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "storageAccountName": {
+              "type": "string",
+              "value": "[variables('storageAccountName')]"
             }
           }
         }
       },
-      "sku": {
-        "name": "[variables('storageAccountType')]"
-      },
-      "type": "Microsoft.Storage/storageAccounts"
+      "resourceGroup": "[variables('resourceGroupName')]",
+      "type": "Microsoft.Resources/deployments"
     }
   ],
-  "outputs": {
-    "storageAccountName": {
-      "type": "string",
-      "value": "[variables('storageAccountName')]"
-    }
-  }
+  "outputs": {}
 }

@@ -1,8 +1,12 @@
 {
   "ExpandedNodes": [
     "",
-    "\\src"
+    "\\designdocs",
+    "\\designdocs\\img",
+    "\\src",
+    "\\src\\StudyLifecycle",
+    "\\src\\StudyLifecycle\\NewStudy"
   ],
-  "SelectedNode": "\\src",
+  "SelectedNode": "\\src\\StudyLifecycle\\NewStudy\\new-studydeployment.ps1",
   "PreviewInSolutionExplorer": false
 }
