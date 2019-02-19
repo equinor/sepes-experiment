@@ -59,7 +59,7 @@
 # conditions contained within the Premier Customer Services Description.
 
 #Requires -Version 3.0
-#Requires -Module Az
+#Requires -Module Az.Accounts
 
 Param(
     [Parameter(Mandatory = $true)] [string] $studyName = "",
@@ -82,9 +82,8 @@ function Format-ValidationOutput {
     return @($ValidationOutput | Where-Object { $_ -ne $null } | ForEach-Object { @('  ' * $Depth + ': ' + $_.Message) + @(Format-ValidationOutput @($_.Details) ($Depth + 1)) })
 }
 
-$OptionalParameters = New-Object -TypeName Hashtable
 $TemplateFile = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($PSScriptRoot, $TemplateFile))
-$TemplateParametersFile = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($PSScriptRoot, $TemplateParametersFile))
+#$TemplateParametersFile = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($PSScriptRoot, $TemplateParametersFile))
 
 # Sets context to use a particular subscription (if the admin account has access to several).
 Set-AzContext -Subscription $subscriptionId
@@ -94,14 +93,13 @@ Set-AzContext -Subscription $subscriptionId
 
 # Create a hashtable with parameters for the deployment
 $params = @{}
-$OpenWith.Add('studyName', $studyName)
-$OpenWith.Add('location', $location)
+$params.Add('studyName', $studyName)
+$params.Add('location', $location)
 
 if ($ValidateOnly) {
     #$ErrorMessages = Format-ValidationOutput (Test-AzureRmResourceGroupDeployment -TemplateFile $TemplateFile `
-	$ErrorMessages = Format-ValidationOutput (Test-AzResourceGroupDeployment -TemplateFile $TemplateFile `
-                                                                                  -TemplateParameterObject $params `
-                                                                                  @OptionalParameters)
+	$ErrorMessages = Format-ValidationOutput (Test-AzDeployment -TemplateFile $TemplateFile -Location $location `
+                                                                                  -TemplateParameterObject $params )
     if ($ErrorMessages) {
         Write-Output '', 'Validation returned the following errors:', @($ErrorMessages), '', 'Template is invalid.'
     }
@@ -122,8 +120,8 @@ else {
 	New-AzDeployment -Name ((Get-ChildItem $TemplateFile).BaseName + '-' + ((Get-Date).ToUniversalTime()).ToString('MMdd-HHmm')) `
 	  -Location $location `
 	  -TemplateFile $TemplateFile `
-	  -TemplateParameterObject $params
-      -Force -Verbose `
+	  -TemplateParameterObject $params `
+      -Verbose `
       -ErrorVariable ErrorMessages
 
     if ($ErrorMessages) {
