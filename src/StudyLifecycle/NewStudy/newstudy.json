@@ -18,17 +18,48 @@
     }
   },
   "variables": {
-    "resourceGroupName": "[concat(parameters('studyName'),'-study-rg')]"
+    "resourceGroupName": "[concat(parameters('studyName'),'-study-rg')]",
+    "storageAccountName": "[substring(tolower(concat('sndbox', uniquestring(resourceGroup().id))), 0, 32)]",
+    "storageAccountType": "Standard_LRS"
   },
   "resources": [
     {
-      "apiVersion": "2018-05-01",
+      "apiVersion": "2018-07-01",
       "comments": "Resource Group for a study",
       "location": "[parameters('location')]",
       "name": "[variables('resourceGroupName')]",
       "properties": {},
       "type": "Microsoft.Resources/resourceGroups"
+    },
+    {
+      "apiVersion": "2018-07-01",
+      "comments": "Storage account for a study",
+      "kind": "StorageV2",
+      "location": "[parameters('location')]",
+      "name": "[variables('storageAccountName')]",
+      "properties": {
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": true
+            },
+            "file": {
+              "enabled": true
+            }
+          }
+        }
+      },
+      "sku": {
+        "name": "[variables('storageAccountType')]"
+      },
+      "type": "Microsoft.Storage/storageAccounts"
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "storageAccountName": {
+      "type": "string",
+      "value": "[variables('storageAccountName')]"
+    }
+  }
 }
