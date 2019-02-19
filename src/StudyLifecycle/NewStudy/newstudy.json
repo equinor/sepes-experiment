@@ -6,7 +6,7 @@
       "type": "string",
       "maxLength": 30,
       "metadata": {
-        "description": "Specify study name."
+        "description": "Specify study name, use alphanumeric value only."
       }
     },
     "location": {
@@ -19,7 +19,7 @@
   },
   "variables": {
     "resourceGroupName": "[concat(parameters('studyName'),'-study-rg')]",
-    "storageAccountName": "[substring(tolower(concat('sndbox', uniquestring(resourceGroup().id))), 0, 32)]",
+    "storageAccountName": "[substring(tolower(concat('sndbox', parameters('studyName'), uniquestring(subscription().id))), 0, 18)]",
     "storageAccountType": "Standard_LRS"
   },
   "resources": [
@@ -70,17 +70,17 @@
               }
             }
           ],
-          "outputs": {
-            "storageAccountName": {
-              "type": "string",
-              "value": "[variables('storageAccountName')]"
-            }
-          }
+          "outputs": {}
         }
       },
       "resourceGroup": "[variables('resourceGroupName')]",
       "type": "Microsoft.Resources/deployments"
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "storageAccountName": {
+      "type": "string",
+      "value": "[variables('storageAccountName')]"
+    }
+  }
 }
