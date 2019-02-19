@@ -1,0 +1,34 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "studyName": {
+      "type": "string",
+      "maxLength": 30,
+      "metadata": {
+        "description": "Specify resource group name following agreed naming convention."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "North Europe",
+      "metadata": {
+        "description": "Azure region for saving RG metadata info + all resources."
+      }
+    }
+  },
+  "variables": {
+    "resourceGroupName": "[concat(parameters('studyName'),'-study-rg')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-05-01",
+      "comments": "Resource Group for a study",
+      "location": "[parameters('location')]",
+      "name": "[variables('resourceGroupName')]",
+      "properties": {},
+      "type": "Microsoft.Resources/resourceGroups"
+    }
+  ],
+  "outputs": {}
+}
