@@ -1,10 +1,10 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "studyName": {
       "type": "string",
-      "maxLength": 30,
+      "maxLength": 80,
       "metadata": {
         "description": "Specify study name, use alphanumeric value only."
       }
@@ -18,63 +18,36 @@
     }
   },
   "variables": {
-    "resourceGroupName": "[concat(parameters('studyName'),'-study-rg')]",
-    "storageAccountName": "[substring(tolower(concat('sndbox', parameters('studyName'), uniquestring(subscription().id))), 0, 18)]",
+    "storageAccountName": "[concat('sndbox', uniquestring(resourceGroup().id))]",
     "storageAccountType": "Standard_LRS"
   },
   "resources": [
     {
+      "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2018-07-01",
-      "comments": "Resource Group for a study",
+      "name": "[variables('storageAccountName')]",
       "location": "[parameters('location')]",
-      "name": "[variables('resourceGroupName')]",
-      "properties": {},
-      "type": "Microsoft.Resources/resourceGroups"
-    },
-    {
-      "apiVersion": "2018-05-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/resourceGroups/', variables('resourceGroupName'))]"
-      ],
-      "name": "storageDeployment",
-      "properties": {
-        "mode": "Incremental",
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "parameters": {},
-          "variables": {},
-          "resources": [
-            {
-              "type": "Microsoft.Storage/storageAccounts",
-              "apiVersion": "2018-07-01",
-              "comments": "Storage account for a study",
-              "name": "[variables('storageAccountName')]",
-              "location": "[parameters('location')]",
-              "kind": "StorageV2",
-              "sku": {
-                "name": "Standard_LRS"
+      "comments": "Storage account for a study",
+      "tags": {
+        "studyName": "[parameters('studyName')]"
+      },
+        "kind": "StorageV2",
+        "sku": {
+          "name": "[variables('storageAccountType')]"
+        },
+        "properties": {
+          "encryption": {
+            "keySource": "Microsoft.Storage",
+            "services": {
+              "blob": {
+                "enabled": true
               },
-              "properties": {
-                "encryption": {
-                  "keySource": "Microsoft.Storage",
-                  "services": {
-                    "blob": {
-                      "enabled": true
-                    },
-                    "file": {
-                      "enabled": true
-                    }
-                  }
-                }
+              "file": {
+                "enabled": true
               }
             }
-          ],
-          "outputs": {}
+          }
         }
-      },
-      "resourceGroup": "[variables('resourceGroupName')]",
-      "type": "Microsoft.Resources/deployments"
     }
   ],
   "outputs": {
