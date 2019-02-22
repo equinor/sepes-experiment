@@ -63,28 +63,27 @@
 #Requires -Module Az.Resources
 
 Param(
-  [Parameter(Mandatory = $true,
-  HelpMessage="Enter a study name (alphanumeric chars and underscore only.")]
-	[ValidatePattern("^[a-zA-Z0-9_]+$")]
-	[string]
-	$studyName = "",
-	[string]
-	$TemplateFile = 'newstudy.json',
-	[Parameter(Mandatory = $true,
-	HelpMessage="Enter a desired Azure region for the deployment.")]
-	[string]
-	$location = "North Europe",
-	[Parameter(Mandatory = $true,
-	HelpMessage="Provide a subscription Id.")]
-	[string]
-	$subscriptionId = "",
-  [switch]
-	$ValidateOnly
+    [Parameter(Mandatory = $true)]
+    [ValidatePattern("^[a-zA-Z0-9_]+$")]
+    [string]
+    $studyName = "",
+    [string]
+    $TemplateFile = 'newstudy.json',
+    [Parameter(Mandatory = $true)]
+    [string]
+    $location = "North Europe",
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $subscriptionId = "",
+    [switch]
+    $ValidateOnly
 )
 
 try {
-    [Microsoft.Azure.Common.Authentication.AzureSession]::ClientFactory.AddUserAgent("VSAzureTools-$UI$($host.name)".replace(' ','_'), '3.0.0')
-} catch { }
+    [Microsoft.Azure.Common.Authentication.AzureSession]::ClientFactory.AddUserAgent("VSAzureTools-$UI$($host.name)".replace(' ', '_'), '3.0.0')
+}
+catch { }
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3
@@ -97,10 +96,9 @@ function Format-ValidationOutput {
 
 # Check if template file exist
 $TemplateFile = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($PSScriptRoot, $TemplateFile))
-if (!(Test-Path $TemplateFile))
-{
-	Write-Error -Message "ARM Template file $TemplateFile was not found! Please fix!"
-	Break
+if (!(Test-Path $TemplateFile)) {
+    Write-Error -Message "ARM Template file $TemplateFile was not found! Please fix!"
+    Break
 }
 
 # Check if location param entered by a user (overwriting the default) corresponds with an Azure region name.
@@ -109,24 +107,24 @@ $regionExists = $false
 
 foreach ($region in $regions) {
     If (($region.DisplayName -eq $location) -or ($region.Location -eq $location)) {
-      $regionExists = $true
-  }
+        $regionExists = $true
+    }
 }
 If ($regionExists -eq $false) {
-  Write-Error -Message "Provided location - $location - does not correspond to any Azure region!"
-  Break
+    Write-Error -Message "Provided location - $location - does not correspond to any Azure region!"
+    Break
 }
 
 # Checks if admin is logged on and sets context to use a particular subscription (if the admin account has access to several).
 If (!(Get-AzContext)) {
-	Write-Host "Please login to your Azure account"
+    Write-Host "Please login to your Azure account"
     Login-AzAccount
 }
 
 # Check, if subscriptionId was entered correctly (i.e. if it exists and the context can be set).
-If (!(Set-AzContext -Subscription $subscriptionId)) {
-	Write-Error -Message "Cannot switch context to $subscriptionId subscription! Please check your permissions or related parameter for typos!"
-	Break
+If (!(Set-AzContext -Subscription $subscriptionId -ErrorAction SilentlyContinue)) {
+    Write-Error -Message "Cannot switch context to $subscriptionId subscription! Please check your permissions or related parameter for typos!"
+    Break
 }
 
 
@@ -140,18 +138,16 @@ $params.Add('location', $location)
 $myResourceGroupName = $studyName + '-study-rg'
 Get-AzResourceGroup -Name $myResourceGroupName -ErrorVariable notPresent -ErrorAction SilentlyContinue
 
-if ($notPresent)
-{
+if ($notPresent) {
     Write-Verbose -Message "Resource group $myResourceGroupName for $studyName study does not exist (expected). It will be created."
     New-AzResourceGroup -Name $myResourceGroupName -Location $location -Tag @{studyName = $studyName}
 }
-else
-{
+else {
     Write-Warning -Message "Resource group $myResourceGroupName for $studyName study exists! Do you want to proceed?"
     $overwrite = Read-Host -Prompt "Overwrite the existing study (Resource Group)? N=no, anything_else=yes"
     if ($overwrite -eq "N") {
-      Write-Warning -Message "Deployment is cancelled based on your selection!"
-      Break
+        Write-Warning -Message "Deployment is cancelled based on your selection!"
+        Break
     }
 }
 
