@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "studyName": {
+      "type": "string",
+      "maxLength": 80,
+      "metadata": {
+        "description": "Specify study name, use alphanumeric value only."
+      }
+    },
+    "podName": {
+      "type": "string",
+      "maxLength": 80,
+      "metadata": {
+        "description": "Specify pod name, use alphanumeric value only."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "North Europe",
+      "metadata": {
+        "description": "Azure region for saving RG metadata info + all resources."
+      }
+    }
+  },
+  "variables": {
+    "vnetName": "[concat('study-', parameters('studyName'), '-pod-', parameters('podName'), '-vnet')]",
+    "subnetName": "pod-subnet",
+    "vnetAddressPrefix": "10.0.0.0/16",
+    "subnetAddressPrefix": "10.0.0.0/22"
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-10-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": ["[variables('vnetAddressPrefix')]"]
+        }
+      },
+      "resources": [
+        {
+          "apiVersion": "2018-10-01",
+          "type": "subnets",
+          "location": "[parameters('location')]",
+          "name": "[variables('subnetName')]",
+          "dependsOn": ["[variables('vnetName')]"],
+          "properties": {
+            "addressPrefix": "[variables('subnetAddressPrefix')]",
+            "serviceEndpoints": [
+              {
+                "service": "Microsoft.Storage"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "vnetName": {
+      "type": "string",
+      "value": "[variables('vnetName')]"
+    },
+    "subnetName": {
+      "type": "string",
+      "value": "[variables('subnetName')]"
+    }
+  }
+}
