@@ -19,7 +19,8 @@
   },
   "variables": {
     "storageAccountName": "[concat('sndbox', uniquestring(resourceGroup().id))]",
-    "storageAccountType": "Standard_LRS"
+    "storageAccountType": "Standard_LRS",
+    "serviceEndpointName": "[concat('study-',parameters('studyName'), '-service-endpoint')]"
   },
   "resources": [
     {
@@ -31,29 +32,58 @@
       "tags": {
         "studyName": "[parameters('studyName')]"
       },
-        "kind": "StorageV2",
-        "sku": {
-          "name": "[variables('storageAccountType')]"
-        },
-        "properties": {
-          "encryption": {
-            "keySource": "Microsoft.Storage",
-            "services": {
-              "blob": {
-                "enabled": true
-              },
-              "file": {
-                "enabled": true
-              }
+      "kind": "StorageV2",
+      "sku": {
+        "name": "[variables('storageAccountType')]"
+      },
+      "properties": {
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": true
+            },
+            "file": {
+              "enabled": true
             }
           }
         }
+      }
+    },
+    {
+      "name": "[variables('serviceEndpointName')]",
+      "type": "Microsoft.Network/serviceEndpointPolicies",
+      "apiVersion": "2018-11-01",
+      "location": "[parameters('location')]",
+      "tags": {
+        "studyName": "[parameters('studyName')]"
+      },
+      "properties": {
+        "serviceEndpointPolicyDefinitions": [
+          {
+            "properties": {
+              "description": "Allow Storage Account",
+              "service": "Microsoft.Storage",
+              "serviceResources": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+              ]
+            },
+            "name": "Microsoft.Storage"
+          }
+        ]
+      },
+      "resources": [],
+      "dependsOn": [ "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]" ]
     }
   ],
   "outputs": {
     "storageAccountName": {
       "type": "string",
       "value": "[variables('storageAccountName')]"
+    },
+    "serviceEndpointId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/serviceEndpointPolicies', variables('serviceEndpointName'))]"
     }
   }
 }

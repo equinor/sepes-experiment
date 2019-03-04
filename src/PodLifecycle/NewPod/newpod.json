@@ -22,7 +22,14 @@
       "metadata": {
         "description": "Azure region for saving RG metadata info + all resources."
       }
+    },
+    "serviceEndpointPolicyId": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID of the service endpoint policy for this study"
+      }
     }
+
   },
   "variables": {
     "vnetName": "[concat('study-', parameters('studyName'), '-pod-', parameters('podName'), '-vnet')]",
@@ -54,7 +61,13 @@
               {
                 "service": "Microsoft.Storage"
               }
+            ],
+            "serviceEndpointPolicies": [
+              {
+                "id": "[parameters('serviceEndpointPolicyId')]"
+              }
             ]
+
           }
         }
       ]
